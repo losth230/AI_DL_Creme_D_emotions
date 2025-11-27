@@ -18,8 +18,6 @@ Les deux volets illustrent comment une même tâche (reconnaissance d’émotion
 - Manipuler un dataset réel (CREMA-D) et le prétraiter de bout en bout.
 - Entraîner et évaluer plusieurs architectures de réseaux de neurones.
 - Comparer différentes représentations de données (audio vs. métadonnées).
-- Mettre en place les éléments classiques d’un projet reproductible : notebooks, scripts, rapport, README.
-- Optionnel : préparer l’intégration d’éléments d’IA symbolique (règles, post-traitement logique).
 
 ---
 
@@ -96,11 +94,11 @@ Trois familles de modèles sont explorées :
 
 | Modèle                 | Type | Description                                                                                                                                                                  |
 |:-----------------------| :--- |:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **CNN 1D**             | Spatial | Traite le spectrogramme comme une image pour détecter des motifs locaux (pics de fréquence, énergie). Rapide mais manque de contexte temporel. Capte des motifs locaux (pics de fréquence, transitions rapides).                              |
+| **CNN 1D**             | Spatial | Traite le spectrogramme comme une image pour détecter des motifs locaux (pics de fréquence, énergie). Rapide mais manque de contexte temporel.                               |
 | **LSTM**               | Temporel | Réseau récurrent bidirectionnel. Analyse la séquence audio dans les deux sens pour comprendre l'évolution de l'émotion dans le temps.                                        |
 | **CRNN** (CNN + LSTM)  | **Hybride** | **(Meilleur Modèle)** Combine l'extraction de caractéristiques du CNN avec la mémoire séquentielle du LSTM. Utilise la `BatchNormalization` pour stabiliser l'apprentissage. |
 
-## 5.4. Entraînement et Résultats
+### 5.4. Entraînement et Résultats
 
 * **Stratégie :** Entraînement sur 40 époques avec `Adam` (lr=0.0005).
 * **Régularisation :** Utilisation de `Dropout` élevé (0.3 - 0.4) et d'`EarlyStopping` pour éviter le surapprentissage.
@@ -118,7 +116,7 @@ Le modèle hybride CRNN offre le meilleur compromis entre précision et stabilit
 
 Le notebook permet également :
 
-* de charger un fichier audio externe,
+* de charger un fichier audio externe (ici nommé TestAudio.wav),
 * d’appliquer le même pipeline de prétraitement (resampling, padding, spectrogramme),
 * de produire la prédiction du modèle (classe d’émotion et probabilités associées).
 
@@ -198,7 +196,7 @@ model = tf.keras.Sequential([
     normalize,
     layers.Dense(64, activation='relu'),
     layers.Dense(64, activation='relu'),
-    layers.Dense(6, activation='softmax)  # 6 classes d'émotions
+    layers.Dense(6, activation='softmax')  # 6 classes d'émotions
 ])
 ```
 
@@ -208,7 +206,7 @@ model = tf.keras.Sequential([
 ---
 
 ### 6.4. Entraînement et Évaluation
-* Entraînement sur 100 époques avec `Adam` (lr=0.001)
+* Entraînement sur 10 époques avec `Adam` (lr=0.001)
 * On évalue en regardant la quantité de prédictions justes sur l’ensemble de validation.
 
 ---
@@ -220,4 +218,13 @@ En effet, les réponses ne permettent pas de réellement différencier une émot
 étant capable de varier indépendamment.
 * En conclusion, les données tabulaires seules sont insuffisantes pour une classification efficace des émotions.
 
+
+---
+
+## 7. Conclusion
+Pour augmenter les performances globales du système de reconnaissance des émotions, plusieurs pistes peuvent être explorées :
+1. **Fusion Multimodale :** Combiner les prédictions des modèles audio et CSV pour tirer parti des deux sources d’information.
+2. **Modèles Avancés :** Expérimenter avec des architectures plus complexes (Transformers, modèles pré-entraînés).
+3. **Données Supplémentaires :** Intégrer des données vidéo ou textuelles pour enrichir le contexte émotionnel.
+4. **Optimisation des Hyperparamètres :** Utiliser des techniques de recherche d’hyperparamètres (Grid Search, Bayesian Optimization) pour affiner les modèles.
 
