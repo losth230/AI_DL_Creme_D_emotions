@@ -1,50 +1,82 @@
-# Projet Deep Learning : Reconnaissance d'Émotions Audio (SER)
+# Projet Deep Learning 2025-2026  
+Reconnaissance des émotions avec TensorFlow (Audio + CSV, CREMA-D)
 
-**Année :** 2025-2026
-**Domaine :** Audio
+## 1. Description générale
 
----
+Ce projet met en place un pipeline complet de Deep Learning avec TensorFlow pour la reconnaissance d’émotions à partir du dataset CREMA-D. Il est constitué de deux volets complémentaires :
 
-## Description du Projet
-Ce projet a pour but de construire un pipeline complet de Deep Learning capable de classifier l'émotion d'un locuteur à partir d'un fichier audio. Le système distingue 6 émotions : Colère, Dégoût, Peur, Joie, Neutre et Tristesse.
+- Partie I – Audio : classification des émotions à partir des fichiers audio (.wav).
+- Partie II – CSV : prédiction de l’émotion affichée à partir des réponses d’annotateurs et des métadonnées des acteurs.
 
-Nous avons mis en œuvre une approche comparative testant plusieurs architectures de réseaux de neurones (CNN, LSTM, CRNN) et utilisé des techniques avancées de traitement du signal (Mel-Spectrogrammes) et d'augmentation de données pour maximiser la précision.
-
-### Objectifs
-
-#### Partie I :
-* **ETL Audio :** Chargement, nettoyage et transformation des fichiers `.wav`.
-* **Modélisation :** Conception et comparaison de modèles CNN 1D, LSTM et CRNN.
-* **Optimisation :** Utilisation de la Data Augmentation et du Fine-Tuning.
-* **Déploiement :** Inférence sur des fichiers audio externes.
-
-#### Partie II : CSV
+Les deux volets illustrent comment une même tâche (reconnaissance d’émotions) peut être abordée à partir de représentations différentes : signal audio brut d’un côté, données tabulaires (CSV) de l’autre.
 
 ---
 
-## Jeu de Données (Dataset)
+## 2. Objectifs
 
-Le projet s'appuie sur le dataset **CREMA-D** (Crowd-sourced Emotional Multimodal Actors Dataset).
-
-* **Contenu :** 7 442 clips originaux provenant de 91 acteurs différents.
-* **Diversité :** Acteurs de 20 à 74 ans, issus de diverses ethnies (Afro-Américains, Asiatiques, Caucasiens, Hispaniques).
-* **Labels :** Les phrases sont prononcées avec 6 émotions différentes (Anger, Disgust, Fear, Happy, Neutral, Sad) et 4 niveaux d'intensité.
-* **Format Nom Fichiers** : `ID_Acteur_Phrase_Emotion_Intensité.wav` (ex: `1001_MAD_HAP_HIGH.wav`).
+- Concevoir un pipeline complet de deep learning avec TensorFlow.
+- Manipuler un dataset réel (CREMA-D) et le prétraiter de bout en bout.
+- Entraîner et évaluer plusieurs architectures de réseaux de neurones.
+- Comparer différentes représentations de données (audio vs. métadonnées).
+- Mettre en place les éléments classiques d’un projet reproductible : notebooks, scripts, rapport, README.
+- Optionnel : préparer l’intégration d’éléments d’IA symbolique (règles, post-traitement logique).
 
 ---
 
+## 3. Organisation du projet
+
+### 3.1. Notebooks principaux
+
+- `AudioTreatment.ipynb`  
+  Pipeline de traitement audio : chargement des fichiers `.wav`, data augmentation, extraction de caractéristiques (Mel-Spectrogrammes), entraînement de modèles CNN / LSTM / CRNN, évaluation et inférence.
+
+- `CSV_Training.ipynb`  
+  Pipeline sur les données tabulaires : prétraitement de `finishedResponses.csv` et `VideoDemographics.csv`, feature engineering, encodage des variables, entraînement d’un modèle MLP avec TensorFlow.
+
+## 4. Dataset : CREMA-D
+
+Le projet repose sur le dataset CREMA-D (Crowd-sourced Emotional Multimodal Actors Dataset) :
+
+* Clips audio d’acteurs exprimant différentes émotions.
+* Plusieurs acteurs, genres, groupes d’âge et origines ethniques.
+* Six émotions principales :
+
+  * Anger (A)
+  * Disgust (D)
+  * Fear (F)
+  * Happiness (H)
+  * Neutral (N)
+  * Sadness (S)
+
+Convention de nommage typique des fichiers audio :
+
+```text
+ActorID_PhraseType_Emotion_Intensité.wav
+ex : 1001_DFA_ANG_HIGH.wav
+```
+
+Les fichiers CSV associés apportent des informations supplémentaires :
+
+* `finishedResponses.csv` : réponses d’annotateurs, scores de perception, identifiant du clip, etc.
+* `VideoDemographics.csv` : informations démographiques sur les acteurs (Genre, Age, Race, Ethnicity, ActorID, etc.).
+
+---
 ## Installation et Utilisation
 
 ### Prérequis
 Le projet nécessite Python 3.x et les librairies suivantes :
 ```bash
 pip install tensorflow librosa numpy pandas matplotlib seaborn scikit-learn tqdm
-
+```
 ---
 
-# PARTIE I :
+## 5. Partie I – Reconnaissance d’émotions à partir de l’audio
 
-## Pipeline et Prétraitement
+### 5.1. Objectif
+
+Construire un modèle de Speech Emotion Recognition (SER) capable de prédire l’émotion exprimée dans un fichier audio parmi les six classes : A, D, F, H, N, S.
+
+### 5.2. Pipeline audio dans `AudioTreatment.ipynb`
 
 Pour transformer les signaux audio bruts en données intelligibles pour le réseau, nous avons appliqué le pipeline suivant :
 
@@ -58,19 +90,17 @@ Pour transformer les signaux audio bruts en données intelligibles pour le rése
 
 ---
 
-## Architectures des Modèles
+### 5.3. Architectures de modèles audio
 
-Trois architectures ont été implémentées et comparées :
+Trois familles de modèles sont explorées :
 
-| Modèle | Type | Description |
-| :--- | :--- | :--- |
-| **CNN 1D** | Spatial | Traite le spectrogramme comme une image pour détecter des motifs locaux (pics de fréquence, énergie). Rapide mais manque de contexte temporel. |
-| **LSTM** | Temporel | Réseau récurrent bidirectionnel. Analyse la séquence audio dans les deux sens pour comprendre l'évolution de l'émotion dans le temps. |
-| **CRNN** | **Hybride** | **(Meilleur Modèle)** Combine l'extraction de caractéristiques du CNN avec la mémoire séquentielle du LSTM. Utilise la `BatchNormalization` pour stabiliser l'apprentissage. |
+| Modèle                 | Type | Description                                                                                                                                                                  |
+|:-----------------------| :--- |:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **CNN 1D**             | Spatial | Traite le spectrogramme comme une image pour détecter des motifs locaux (pics de fréquence, énergie). Rapide mais manque de contexte temporel. Capte des motifs locaux (pics de fréquence, transitions rapides).                              |
+| **LSTM**               | Temporel | Réseau récurrent bidirectionnel. Analyse la séquence audio dans les deux sens pour comprendre l'évolution de l'émotion dans le temps.                                        |
+| **CRNN** (CNN + LSTM)  | **Hybride** | **(Meilleur Modèle)** Combine l'extraction de caractéristiques du CNN avec la mémoire séquentielle du LSTM. Utilise la `BatchNormalization` pour stabiliser l'apprentissage. |
 
----
-
-## Entraînement et Résultats
+## 5.4. Entraînement et Résultats
 
 * **Stratégie :** Entraînement sur 40 époques avec `Adam` (lr=0.0005).
 * **Régularisation :** Utilisation de `Dropout` élevé (0.3 - 0.4) et d'`EarlyStopping` pour éviter le surapprentissage.
@@ -84,17 +114,28 @@ Le modèle hybride CRNN offre le meilleur compromis entre précision et stabilit
 
 ---
 
-## Pistes d'Amélioration & IA Symbolique
+### 5.5. Inférence sur de nouveaux fichiers audio
+
+Le notebook permet également :
+
+* de charger un fichier audio externe,
+* d’appliquer le même pipeline de prétraitement (resampling, padding, spectrogramme),
+* de produire la prédiction du modèle (classe d’émotion et probabilités associées).
+
+---
+
+### 5.6. Pistes d'Amélioration & IA Symbolique
 
 Pour enrichir le projet avec une dimension symbolique (règles logiques) :
 
 1.  **Logique de Seuil :** Si la probabilité de la classe prédite est `< 40%`, le système classe le résultat comme "Incertain" plutôt que de donner une réponse fausse.
 2.  **Règles de Cohérence :** Si nous avions accès à la vidéo, nous pourrions implémenter des règles multimodales (ex: `SI Audio=Triste ET Vidéo=Sourire ALORS Sortie=Ironie`).
 
-# PARTIE II : CSV
+---
 
+## 6. PARTIE II : CSV
 
-## Objectifs
+### 6.1. Objectif
 
 Prédire l’émotion affichée (`dispEmo`) pour chaque clip à partir :
 
@@ -104,7 +145,9 @@ Prédire l’émotion affichée (`dispEmo`) pour chaque clip à partir :
 
 Les classes cibles sont les mêmes que dans la partie audio : A, D, F, H, N, S.
 
-### Prétraitement dans `CSV_Training.ipynb`
+---
+
+### 6.2. Prétraitement dans `CSV_Training.ipynb`
 
 1. Chargement et nettoyage des données
 
@@ -138,22 +181,43 @@ Les classes cibles sont les mêmes que dans la partie audio : A, D, F, H, N, S.
 
      * A → 0, D → 1, F → 2, H → 3, N → 4, S → 5.
    * Encodage des variables catégorielles (Gender, Age, Race, Ethnicity, PhraseType, etc.) en entiers.
-   * Normalisation de la colonne `ttr` 
+   * Normalisation de la colonne `ttr` :
 
-### Modèle TensorFlow pour les CSV
-```
-
-Dans la version de base :
-
-* La loss utilisée est la MSE (erreur quadratique moyenne).
-* Les labels (0 à 5) sont traités comme des valeurs numériques.
-
-
-### Entraînement et évaluation
-
-* Découpage train/test avec `train_test_split` (par exemple 80 % / 20 %).
-* Entraînement sur plusieurs époques avec suivi des métriques.
-* Évaluation sur le jeu de test (accuracy, éventuellement matrice de confusion).
+     ```python
+     features['ttr'] = (features['ttr'] - features['ttr'].mean()) / features['ttr'].std()
+     ```
 
 ---
+
+### 6.3. Modèle TensorFlow pour les CSV
+
+Un modèle MLP simple est utilisé :
+
+```python
+model = tf.keras.Sequential([
+    normalize,
+    layers.Dense(64, activation='relu'),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(6, activation='softmax)  # 6 classes d'émotions
+])
+```
+
+* La loss utilisée est la sparse_categorical_crossentropy.
+* Les labels (0 à 5) sont traités comme des valeurs numériques.
+
+---
+
+### 6.4. Entraînement et Évaluation
+* Entraînement sur 100 époques avec `Adam` (lr=0.001)
+* On évalue en regardant la quantité de prédictions justes sur l’ensemble de validation.
+
+---
+
+### 6.5. Résultats et Améliorations
+* Le modèle atteint environ 18% de précision sur l’ensemble de validation ce qui est très peu.
+* Cela s'explique par le fait que les données tabulaires contiennent peu d’informations discriminantes pour la tâche de reconnaissance des émotions.
+En effet, les réponses ne permettent pas de réellement différencier une émotion d'une autre et les caractéristiques d'un acteur (âge, sexe, ethnie) n'ont pas d'impact direct sur l'émotion exprimée
+étant capable de varier indépendamment.
+* En conclusion, les données tabulaires seules sont insuffisantes pour une classification efficace des émotions.
+
 
