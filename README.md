@@ -1,4 +1,4 @@
-# 🎵 Projet Deep Learning : Reconnaissance d'Émotions Audio (SER)
+# Projet Deep Learning : Reconnaissance d'Émotions Audio (SER)
 
 **Année :** 2025-2026
 **Domaine :** Audio
@@ -30,6 +30,15 @@ Le projet s'appuie sur le dataset **CREMA-D** (Crowd-sourced Emotional Multimoda
 * **Diversité :** Acteurs de 20 à 74 ans, issus de diverses ethnies (Afro-Américains, Asiatiques, Caucasiens, Hispaniques).
 * **Labels :** Les phrases sont prononcées avec 6 émotions différentes (Anger, Disgust, Fear, Happy, Neutral, Sad) et 4 niveaux d'intensité.
 * **Format Nom Fichiers** : `ID_Acteur_Phrase_Emotion_Intensité.wav` (ex: `1001_MAD_HAP_HIGH.wav`).
+
+---
+
+## Installation et Utilisation
+
+### Prérequis
+Le projet nécessite Python 3.x et les librairies suivantes :
+```bash
+pip install tensorflow librosa numpy pandas matplotlib seaborn scikit-learn tqdm
 
 ---
 
@@ -69,6 +78,9 @@ Trois architectures ont été implémentées et comparées :
     * Les modèles de base stagnaient autour de 60%.
     * L'ajout de la **Data Augmentation** et des **Mel-Spectrogrammes** a permis une nette amélioration de la généralisation.
     * Le modèle hybride **CRNN** offre le meilleur compromis entre précision et stabilité.
+Les modèles CNN et LSTM stagnaient autour de 60% alors que le CRNN atteignait 35% de précision. 
+L'ajout de la Data Augmentation et des Mel-Spectrogrammes a permis une nette amélioration de la généralisation.
+Le modèle hybride CRNN offre le meilleur compromis entre précision et stabilité avec une précision de 70%.
 
 ---
 
@@ -81,11 +93,67 @@ Pour enrichir le projet avec une dimension symbolique (règles logiques) :
 
 # PARTIE II : CSV
 
+
+## Objectifs
+
+Prédire l’émotion affichée (`dispEmo`) pour chaque clip à partir :
+
+* des réponses des annotateurs (`finishedResponses.csv`),
+* des métadonnées des acteurs (`VideoDemographics.csv`),
+* de caractéristiques dérivées du nom du fichier (`clipName`).
+
+Les classes cibles sont les mêmes que dans la partie audio : A, D, F, H, N, S.
+
+### Prétraitement dans `CSV_Training.ipynb`
+
+1. Chargement et nettoyage des données
+
+   * Chargement des deux fichiers CSV avec pandas.
+   * Suppression des colonnes techniques (indices, IDs internes, colonnes inutiles pour l’apprentissage).
+   * Suppression de la première colonne si elle ne contient que l’index.
+
+2. Extraction de caractéristiques à partir de `clipName`
+
+   * `Actor` : extrait des premiers caractères du nom de fichier, converti en entier, utilisé pour joindre les deux CSV.
+   * `PhraseType` : extrait de la partie centrale du nom de fichier (ex. IEO, TIE, IOM, DFA, etc.).
+
+3. Fusion des deux CSV
+
+   * Fusion sur l’identifiant commun (`Actor` ou `ActorID`).
+   * Suppression des colonnes redondantes après la fusion.
+
+4. Gestion des valeurs manquantes et des valeurs aberrantes
+
+   * Lignes contenant des valeurs manquantes critiques (ex. `dispVal`) supprimées.
+   * Traitement des outliers sur `ttr` (Type/Token Ratio) via l’IQR :
+
+     * calcul des quartiles Q1 et Q3,
+     * découpage des valeurs au-delà de [Q1 - 1,5 × IQR, Q3 + 1,5 × IQR].
+
+5. Construction des features et labels
+
+   * `labels = dispEmo` (colonne cible).
+   * `features = toutes les autres colonnes pertinentes`.
+   * Encodage de `dispEmo` en entiers :
+
+     * A → 0, D → 1, F → 2, H → 3, N → 4, S → 5.
+   * Encodage des variables catégorielles (Gender, Age, Race, Ethnicity, PhraseType, etc.) en entiers.
+   * Normalisation de la colonne `ttr` 
+
+### Modèle TensorFlow pour les CSV
+```
+
+Dans la version de base :
+
+* La loss utilisée est la MSE (erreur quadratique moyenne).
+* Les labels (0 à 5) sont traités comme des valeurs numériques.
+
+
+### Entraînement et évaluation
+
+* Découpage train/test avec `train_test_split` (par exemple 80 % / 20 %).
+* Entraînement sur plusieurs époques avec suivi des métriques.
+* Évaluation sur le jeu de test (accuracy, éventuellement matrice de confusion).
+
 ---
 
-## Installation et Utilisation
-
-### Prérequis
-Le projet nécessite Python 3.x et les librairies suivantes :
-```bash
-pip install tensorflow librosa numpy pandas matplotlib seaborn scikit-learn tqdm
