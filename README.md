@@ -5,20 +5,24 @@
 
 ---
 
-## 📋 Description du Projet
+## Description du Projet
 Ce projet a pour but de construire un pipeline complet de Deep Learning capable de classifier l'émotion d'un locuteur à partir d'un fichier audio. Le système distingue 6 émotions : Colère, Dégoût, Peur, Joie, Neutre et Tristesse.
 
 Nous avons mis en œuvre une approche comparative testant plusieurs architectures de réseaux de neurones (CNN, LSTM, CRNN) et utilisé des techniques avancées de traitement du signal (Mel-Spectrogrammes) et d'augmentation de données pour maximiser la précision.
 
-### 🎯 Objectifs
+### Objectifs
+
+#### Partie I :
 * **ETL Audio :** Chargement, nettoyage et transformation des fichiers `.wav`.
 * **Modélisation :** Conception et comparaison de modèles CNN 1D, LSTM et CRNN.
 * **Optimisation :** Utilisation de la Data Augmentation et du Fine-Tuning.
 * **Déploiement :** Inférence sur des fichiers audio externes.
 
+#### Partie II : CSV
+
 ---
 
-## 💾 Jeu de Données (Dataset)
+## Jeu de Données (Dataset)
 
 Le projet s'appuie sur le dataset **CREMA-D** (Crowd-sourced Emotional Multimodal Actors Dataset).
 
@@ -29,7 +33,9 @@ Le projet s'appuie sur le dataset **CREMA-D** (Crowd-sourced Emotional Multimoda
 
 ---
 
-## ⚙️ Pipeline et Prétraitement
+# PARTIE I :
+
+## Pipeline et Prétraitement
 
 Pour transformer les signaux audio bruts en données intelligibles pour le réseau, nous avons appliqué le pipeline suivant :
 
@@ -43,7 +49,7 @@ Pour transformer les signaux audio bruts en données intelligibles pour le rése
 
 ---
 
-## 🧠 Architectures des Modèles
+## Architectures des Modèles
 
 Trois architectures ont été implémentées et comparées :
 
@@ -55,7 +61,7 @@ Trois architectures ont été implémentées et comparées :
 
 ---
 
-## 📈 Entraînement et Résultats
+## Entraînement et Résultats
 
 * **Stratégie :** Entraînement sur 40 époques avec `Adam` (lr=0.0005).
 * **Régularisation :** Utilisation de `Dropout` élevé (0.3 - 0.4) et d'`EarlyStopping` pour éviter le surapprentissage.
@@ -66,16 +72,18 @@ Trois architectures ont été implémentées et comparées :
 
 ---
 
-## 🤖 Pistes d'Amélioration & IA Symbolique
+## Pistes d'Amélioration & IA Symbolique
 
 Pour enrichir le projet avec une dimension symbolique (règles logiques) :
 
 1.  **Logique de Seuil :** Si la probabilité de la classe prédite est `< 40%`, le système classe le résultat comme "Incertain" plutôt que de donner une réponse fausse.
 2.  **Règles de Cohérence :** Si nous avions accès à la vidéo, nous pourrions implémenter des règles multimodales (ex: `SI Audio=Triste ET Vidéo=Sourire ALORS Sortie=Ironie`).
 
+# PARTIE II : CSV
+
 ---
 
-## 🚀 Installation et Utilisation
+## Installation et Utilisation
 
 ### Prérequis
 Le projet nécessite Python 3.x et les librairies suivantes :
